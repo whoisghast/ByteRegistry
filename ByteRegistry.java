@@ -4,7 +4,6 @@
  * Author: ghast#9999
  */
 
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -12,6 +11,7 @@ import java.util.Map;
 
 /**
  * The ByteRegistry class provides methods to register and retrieve byte array representations of strings.
+ * The byte arrays are converted back to strings when accessed.
  */
 public class ByteRegistry {
 
@@ -26,9 +26,7 @@ public class ByteRegistry {
      * @return the byte array representation of the registered string value
      */
     public static byte[] register(String value, Charset charset) {
-        ByteBuffer buffer = charset.encode(value);
-        byte[] byteArray = new byte[buffer.remaining()];
-        buffer.get(byteArray);
+        byte[] byteArray = value.getBytes(charset);
         registry.put(value, byteArray);
         return byteArray;
     }
@@ -45,13 +43,18 @@ public class ByteRegistry {
     }
 
     /**
-     * Retrieves the byte array representation of the specified registered string value.
+     * Retrieves the string value associated with the specified byte array representation.
      *
-     * @param value the registered string value
-     * @return the byte array representation of the registered string value,
-     *         or null if the string value is not found in the registry
+     * @param byteArray the byte array representation of the string value
+     * @param charset   the character encoding used for decoding the byte array
+     * @return the string value associated with the byte array, or null if not found
      */
-    public static byte[] getByteArray(String value) {
-        return registry.get(value);
+    public static String getString(byte[] byteArray, Charset charset) {
+        for (Map.Entry<String, byte[]> entry : registry.entrySet()) {
+            if (entry.getValue() == byteArray) {
+                return new String(byteArray, charset);
+            }
+        }
+        return null;
     }
 }
